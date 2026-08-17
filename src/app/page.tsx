@@ -5,6 +5,7 @@ import { formatMoney } from "@/lib/calc-engine";
 import { SafeToSpendHero, MiniCard, BreakdownList } from "@/components/DashboardCards";
 import { useTranslation } from "@/lib/i18n";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function DashboardPage() {
   const { state, calc, health, hydrated } = useFinance();
@@ -15,6 +16,14 @@ export default function DashboardPage() {
   if (!state.onboardingComplete) {
     return (
       <div className="card text-center py-16">
+        <Image
+          src="/logo-full.png"
+          alt="Nuvio — Spend smart. Stay safe."
+          width={340}
+          height={236}
+          priority
+          className="mx-auto mb-6 w-56 md:w-72 h-auto"
+        />
         <p className="font-display text-2xl mb-2">{t("onboarding_title")}</p>
         <p className="text-ink/60 mb-6 max-w-md mx-auto">{t("onboarding_body")}</p>
         <Link
