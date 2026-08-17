@@ -1,7 +1,9 @@
 {
-  "name": "finance-tracker",
+  "name": "nuvio",
   "version": "0.1.0",
   "private": true,
+  "description": "Nuvio — Spend smart. Stay safe.",
+  "author": "Gonzalo Suarez",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

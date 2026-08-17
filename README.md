@@ -1,4 +1,6 @@
-# Claridad — Consultor Financiero Personal
+# Nuvio — Spend smart. Stay safe.
+
+Creado por **Gonzalo Suarez**.
 
 App de finanzas personales centrada en una sola pregunta: **¿cuánto puedo gastar hoy sin comprometer mis obligaciones ni mis metas?**
 
