@@ -4,13 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFinance } from "@/lib/use-finance";
 import { newId } from "@/lib/storage";
+import { useTranslation, type Lang } from "@/lib/i18n";
 import clsx from "clsx";
 
 const CURRENCIES = ["EUR", "USD", "GBP", "PLN", "RON", "ARS"];
 const COUNTRIES = ["DE", "ES", "AR", "RO", "PL", "US", "GB"];
+const LANGS: { code: Lang; label: string }[] = [
+  { code: "es", label: "Español" },
+  { code: "en", label: "English" },
+  { code: "de", label: "Deutsch" },
+];
 
 export default function OnboardingPage() {
-  const { update } = useFinance();
+  const { state, update } = useFinance();
+  const { t, tVars, lang } = useTranslation();
   const router = useRouter();
   const [step, setStep] = useState(0);
 
@@ -26,10 +33,14 @@ export default function OnboardingPage() {
   const [desiredReserve, setDesiredReserve] = useState("500");
 
   const [fixedExpenses, setFixedExpenses] = useState([
-    { name: "Alquiler", amount: "900", day: "5" },
+    { name: "", amount: "", day: "5" },
   ]);
 
-  const steps = ["Perfil", "Ingresos", "Situación actual", "Gastos fijos"];
+  const steps = [t("step_profile"), t("step_income"), t("step_situation"), t("step_fixed")];
+
+  function selectLanguage(l: Lang) {
+    update({ profile: { ...state.profile, language: l } });
+  }
 
   function addFixedExpense() {
     setFixedExpenses((prev) => [...prev, { name: "", amount: "", day: "1" }]);
@@ -37,7 +48,7 @@ export default function OnboardingPage() {
 
   function finish() {
     update({
-      profile: { name, country, language: "es", currency },
+      profile: { name, country, language: lang, currency },
       currentBalanceMinor: Math.round(parseFloat(currentBalance || "0") * 100),
       desiredReserveMinor: Math.round(parseFloat(desiredReserve || "0") * 100),
       incomeSources: [
@@ -64,7 +75,7 @@ export default function OnboardingPage() {
           currency,
           frequency: "monthly" as const,
           dueDayRule: { type: "fixed" as const, day: parseInt(f.day || "1") },
-          category: "bills",
+          category: "Otro",
           active: true,
         })),
       onboardingComplete: true,
@@ -93,18 +104,37 @@ export default function OnboardingPage() {
       <div className="card">
         {step === 0 && (
           <div className="space-y-4">
-            <h2 className="font-display text-xl">Cuéntanos sobre ti</h2>
-            <Field label="Tu nombre">
+            <h2 className="font-display text-xl">{t("tell_us_about_you")}</h2>
+            <Field label="Idioma / Language / Sprache">
+              <div className="flex gap-2">
+                {LANGS.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => selectLanguage(l.code)}
+                    className={clsx(
+                      "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                      lang === l.code
+                        ? "bg-ink text-paper border-ink"
+                        : "border-mist text-ink/70 hover:bg-mist/50"
+                    )}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <Field label={t("your_name")}>
               <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ana" />
             </Field>
-            <Field label="País">
+            <Field label={t("country_label")}>
               <select className="input" value={country} onChange={(e) => setCountry(e.target.value)}>
                 {COUNTRIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </Field>
-            <Field label="Moneda">
+            <Field label={t("currency_label")}>
               <select className="input" value={currency} onChange={(e) => setCurrency(e.target.value)}>
                 {CURRENCIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -116,27 +146,27 @@ export default function OnboardingPage() {
 
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="font-display text-xl">Tu salario</h2>
-            <Field label={`Monto aproximado (${currency})`}>
+            <h2 className="font-display text-xl">{t("your_salary")}</h2>
+            <Field label={tVars("approx_amount_with_currency", { c: currency })}>
               <input className="input" type="number" value={salaryAmount} onChange={(e) => setSalaryAmount(e.target.value)} />
             </Field>
-            <Field label="Día de cobro habitual">
+            <Field label={t("usual_pay_day")}>
               <input className="input" type="number" min={1} max={31} value={salaryDay} onChange={(e) => setSalaryDay(e.target.value)} />
             </Field>
             <label className="flex items-center gap-2 text-sm text-ink/70">
               <input type="checkbox" checked={approximate} onChange={(e) => setApproximate(e.target.checked)} />
-              Este día es aproximado (puede variar unos días)
+              {t("approx_day_checkbox")}
             </label>
           </div>
         )}
 
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="font-display text-xl">Tu situación actual</h2>
-            <Field label={`Dinero disponible ahora (${currency})`}>
+            <h2 className="font-display text-xl">{t("your_current_situation")}</h2>
+            <Field label={tVars("money_available_now_with_currency", { c: currency })}>
               <input className="input" type="number" value={currentBalance} onChange={(e) => setCurrentBalance(e.target.value)} />
             </Field>
-            <Field label={`Reserva que quieres conservar al final del ciclo (${currency})`}>
+            <Field label={tVars("desired_reserve_with_currency", { c: currency })}>
               <input className="input" type="number" value={desiredReserve} onChange={(e) => setDesiredReserve(e.target.value)} />
             </Field>
           </div>
@@ -144,12 +174,12 @@ export default function OnboardingPage() {
 
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="font-display text-xl">Tus gastos fijos</h2>
+            <h2 className="font-display text-xl">{t("your_fixed_expenses")}</h2>
             {fixedExpenses.map((fe, idx) => (
               <div key={idx} className="grid grid-cols-3 gap-2">
                 <input
                   className="input col-span-1"
-                  placeholder="Nombre"
+                  placeholder={t("name_placeholder")}
                   value={fe.name}
                   onChange={(e) => {
                     const next = [...fixedExpenses];
@@ -159,7 +189,7 @@ export default function OnboardingPage() {
                 />
                 <input
                   className="input"
-                  placeholder="Monto"
+                  placeholder={t("amount_placeholder")}
                   type="number"
                   value={fe.amount}
                   onChange={(e) => {
@@ -170,7 +200,7 @@ export default function OnboardingPage() {
                 />
                 <input
                   className="input"
-                  placeholder="Día"
+                  placeholder={t("day_placeholder")}
                   type="number"
                   value={fe.day}
                   onChange={(e) => {
@@ -182,7 +212,7 @@ export default function OnboardingPage() {
               </div>
             ))}
             <button onClick={addFixedExpense} className="text-sm text-moss font-medium">
-              + Añadir otro gasto fijo
+              {t("add_another_fixed")}
             </button>
           </div>
         )}
@@ -192,21 +222,21 @@ export default function OnboardingPage() {
             onClick={() => setStep((s) => Math.max(0, s - 1))}
             className={clsx("text-sm text-ink/50", step === 0 && "invisible")}
           >
-            Atrás
+            {t("back_word")}
           </button>
           {step < steps.length - 1 ? (
             <button
               onClick={() => setStep((s) => s + 1)}
               className="bg-ink text-paper px-5 py-2.5 rounded-full text-sm font-medium"
             >
-              Continuar
+              {t("continue_word")}
             </button>
           ) : (
             <button
               onClick={finish}
               className="bg-moss text-paper px-5 py-2.5 rounded-full text-sm font-medium"
             >
-              Terminar
+              {t("finish_word")}
             </button>
           )}
         </div>

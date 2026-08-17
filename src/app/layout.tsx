@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import { FinanceProvider } from "@/lib/use-finance";
@@ -8,6 +8,23 @@ export const metadata: Metadata = {
   description: "Sabe cuánto puedes gastar hoy, sin comprometer tus obligaciones ni tus metas.",
   authors: [{ name: "Gonzalo Suarez" }],
   creator: "Gonzalo Suarez",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Nuvio",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#12181B",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

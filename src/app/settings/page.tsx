@@ -1,7 +1,7 @@
 "use client";
 
 import { useFinance } from "@/lib/use-finance";
-import type { Lang } from "@/lib/i18n";
+import { useTranslation, type Lang } from "@/lib/i18n";
 
 const LANGS: { code: Lang; label: string }[] = [
   { code: "es", label: "Español" },
@@ -13,6 +13,7 @@ const CURRENCIES = ["EUR", "USD", "GBP", "PLN", "RON", "ARS"];
 
 export default function SettingsPage() {
   const { state, update, hydrated } = useFinance();
+  const { t } = useTranslation();
   if (!hydrated) return null;
 
   return (
@@ -38,7 +39,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="card space-y-4">
-        <h2 className="font-display text-xl">Moneda</h2>
+        <h2 className="font-display text-xl">{t("currency_label")}</h2>
         <select
           className="input"
           value={state.profile.currency}
@@ -51,7 +52,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="card">
-        <h2 className="font-display text-xl mb-2">Tu reserva deseada</h2>
+        <h2 className="font-display text-xl mb-2">{t("desired_reserve_label")}</h2>
         <input
           className="input"
           type="number"

@@ -5,6 +5,8 @@ import { useFinance } from "@/lib/use-finance";
 import { formatMoney } from "@/lib/calc-engine";
 import { newId } from "@/lib/storage";
 import type { FixedExpense } from "@/lib/types";
+import { useTranslation } from "@/lib/i18n";
+import { categoryOptions, categoryLabel } from "@/lib/categories";
 
 const CATEGORIES = [
   "Vivienda", "Seguros", "Transporte", "Servicios", "Telefonía",
@@ -23,6 +25,7 @@ const emptyForm: FormState = { id: null, name: "", amount: "", day: "1", categor
 
 export default function FixedExpensesPage() {
   const { state, update, hydrated } = useFinance();
+  const { t, tVars, lang, locale } = useTranslation();
   const [form, setForm] = useState<FormState>(emptyForm);
 
   if (!hydrated) return null;
@@ -45,7 +48,6 @@ export default function FixedExpensesPage() {
     if (!form.name || !form.amount) return;
 
     if (form.id) {
-      // editing an existing fixed expense
       update({
         fixedExpenses: state.fixedExpenses.map((fe) =>
           fe.id === form.id
@@ -60,8 +62,6 @@ export default function FixedExpensesPage() {
         ),
       });
     } else {
-      // adding a new one — this is exactly what onboarding doesn't let you
-      // come back and do: add a fixed expense you forgot, any time later.
       update({
         fixedExpenses: [
           ...state.fixedExpenses,
@@ -94,23 +94,23 @@ export default function FixedExpensesPage() {
   return (
     <div className="space-y-6">
       <div className="card">
-        <p className="text-ink/50 text-xs uppercase tracking-wide mb-1">Total mensual (activos)</p>
-        <p className="font-display text-2xl">{formatMoney(monthlyTotal, currency)}</p>
+        <p className="text-ink/50 text-xs uppercase tracking-wide mb-1">{t("fixed_monthly_total")}</p>
+        <p className="font-display text-2xl">{formatMoney(monthlyTotal, currency, locale)}</p>
       </div>
 
       <form onSubmit={submit} className="card space-y-3">
-        <h2 className="font-display text-lg">{form.id ? "Editar gasto fijo" : "Nuevo gasto fijo"}</h2>
+        <h2 className="font-display text-lg">{form.id ? t("edit_fixed_expense") : t("new_fixed_expense")}</h2>
         <div className="grid grid-cols-2 gap-3">
           <input
             className="input col-span-2"
-            placeholder="Nombre (ej. Alquiler)"
+            placeholder={t("fixed_name_placeholder")}
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
           <input
             className="input"
             type="number"
-            placeholder="Monto mensual"
+            placeholder={t("monthly_amount_placeholder")}
             value={form.amount}
             onChange={(e) => setForm({ ...form, amount: e.target.value })}
           />
@@ -119,7 +119,7 @@ export default function FixedExpensesPage() {
             type="number"
             min={1}
             max={31}
-            placeholder="Día de pago"
+            placeholder={t("payment_day_placeholder")}
             value={form.day}
             onChange={(e) => setForm({ ...form, day: e.target.value })}
           />
@@ -128,14 +128,14 @@ export default function FixedExpensesPage() {
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
           >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
+            {categoryOptions(CATEGORIES, lang).map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
         </div>
         <div className="flex gap-2">
           <button type="submit" className="bg-moss text-paper px-5 py-2.5 rounded-full text-sm font-medium">
-            {form.id ? "Guardar cambios" : "Añadir"}
+            {form.id ? t("save_changes") : t("add_word")}
           </button>
           {form.id && (
             <button
@@ -143,7 +143,7 @@ export default function FixedExpensesPage() {
               onClick={cancelEdit}
               className="text-ink/50 px-5 py-2.5 rounded-full text-sm font-medium hover:bg-mist/50"
             >
-              Cancelar
+              {t("cancel_word")}
             </button>
           )}
         </div>
@@ -157,23 +157,25 @@ export default function FixedExpensesPage() {
               <li key={fe.id} className="py-2.5 flex justify-between items-center text-sm gap-3">
                 <div className="flex-1">
                   <p className={`font-medium ${!fe.active ? "text-ink/40 line-through" : ""}`}>{fe.name}</p>
-                  <p className="text-ink/40 text-xs">{fe.category} · Día {day} de cada mes</p>
+                  <p className="text-ink/40 text-xs">
+                    {categoryLabel(fe.category, lang)} · {tVars("day_of_month", { d: day })}
+                  </p>
                 </div>
-                <span className="font-mono whitespace-nowrap">{formatMoney(fe.amountMinor, currency)}/mes</span>
+                <span className="font-mono whitespace-nowrap">{formatMoney(fe.amountMinor, currency, locale)}/mes</span>
                 <button onClick={() => toggleActive(fe.id)} className="text-ink/40 hover:text-moss text-xs whitespace-nowrap">
-                  {fe.active ? "Desactivar" : "Activar"}
+                  {fe.active ? t("deactivate_word") : t("activate_word")}
                 </button>
                 <button onClick={() => startEdit(fe)} className="text-ink/40 hover:text-ink text-xs">
-                  Editar
+                  {t("edit_word")}
                 </button>
                 <button onClick={() => removeFixed(fe.id)} className="text-ink/30 hover:text-alert text-xs">
-                  Eliminar
+                  {t("delete_word")}
                 </button>
               </li>
             );
           })}
           {state.fixedExpenses.length === 0 && (
-            <p className="text-ink/50 text-sm py-2">Aún no tienes gastos fijos registrados.</p>
+            <p className="text-ink/50 text-sm py-2">{t("no_fixed_expenses_yet")}</p>
           )}
         </ul>
       </div>

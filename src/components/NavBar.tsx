@@ -13,7 +13,7 @@ export default function NavBar() {
   const links = [
     { href: "/", label: t("nav_dashboard"), icon: "◆" },
     { href: "/expenses", label: t("nav_expenses"), icon: "＋" },
-    { href: "/fixed-expenses", label: "Fijos", icon: "▤" },
+    { href: "/fixed-expenses", label: t("nav_fixed"), icon: "▤" },
     { href: "/goals", label: t("nav_goals"), icon: "◎" },
     { href: "/subscriptions", label: t("nav_subscriptions"), icon: "↻" },
     { href: "/settings", label: t("nav_settings"), icon: "⚙" },
