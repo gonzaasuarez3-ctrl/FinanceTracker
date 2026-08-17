@@ -3,17 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-
-const links = [
-  { href: "/", label: "Panel", icon: "◆" },
-  { href: "/expenses", label: "Gastos", icon: "＋" },
-  { href: "/goals", label: "Metas", icon: "◎" },
-  { href: "/subscriptions", label: "Suscripciones", icon: "↻" },
-  { href: "/settings", label: "Ajustes", icon: "⚙" },
-];
+import { useTranslation } from "@/lib/i18n";
 
 export default function NavBar() {
   const pathname = usePathname();
+  const { t } = useTranslation();
+
+  const links = [
+    { href: "/", label: t("nav_dashboard"), icon: "◆" },
+    { href: "/expenses", label: t("nav_expenses"), icon: "＋" },
+    { href: "/goals", label: t("nav_goals"), icon: "◎" },
+    { href: "/subscriptions", label: t("nav_subscriptions"), icon: "↻" },
+    { href: "/settings", label: t("nav_settings"), icon: "⚙" },
+  ];
 
   return (
     <>

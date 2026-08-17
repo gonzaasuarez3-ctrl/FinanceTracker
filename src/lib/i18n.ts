@@ -32,6 +32,22 @@ const dict = {
   add_expense: { es: "+ Añadir gasto", en: "+ Add expense", de: "+ Ausgabe hinzufügen" },
 
   language: { es: "Idioma", en: "Language", de: "Sprache" },
+
+  status_excellent: { es: "Excelente", en: "Excellent", de: "Ausgezeichnet" },
+  status_on_track: { es: "En buen camino", en: "On track", de: "Auf Kurs" },
+  status_slightly_above: { es: "Ligeramente por encima", en: "Slightly above target", de: "Leicht über dem Ziel" },
+  status_at_risk: { es: "En riesgo", en: "At risk", de: "Gefährdet" },
+  status_critical: { es: "Crítico", en: "Critical", de: "Kritisch" },
+
+  onboarding_title: { es: "Empecemos por conocer tu situación", en: "Let's start with your situation", de: "Beginnen wir mit deiner Situation" },
+  onboarding_body: {
+    es: "Necesitamos algunos datos — tu saldo, tu salario y tus gastos fijos — para calcular cuánto puedes gastar hoy con seguridad.",
+    en: "We need a few details — your balance, salary, and fixed expenses — to calculate how much you can safely spend today.",
+    de: "Wir brauchen ein paar Angaben — Kontostand, Gehalt und feste Ausgaben —, um zu berechnen, wie viel du heute sicher ausgeben kannst.",
+  },
+  onboarding_cta: { es: "Configurar mi cuenta", en: "Set up my account", de: "Konto einrichten" },
+
+  in_n_days: { es: "en {n} días", en: "in {n} days", de: "in {n} Tagen" },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type TranslationKey = keyof typeof dict;
@@ -40,10 +56,29 @@ export function translate(key: TranslationKey, lang: Lang): string {
   return dict[key]?.[lang] ?? dict[key]?.es ?? key;
 }
 
+/** Translate with {placeholder} interpolation, e.g. t("in_n_days", { n: 12 }) */
+export function translateWith(
+  key: TranslationKey,
+  lang: Lang,
+  vars: Record<string, string | number>
+): string {
+  let out = translate(key, lang);
+  for (const [k, v] of Object.entries(vars)) {
+    out = out.replace(`{${k}}`, String(v));
+  }
+  return out;
+}
+
+export function localeFor(lang: Lang): string {
+  return { es: "es-ES", en: "en-US", de: "de-DE" }[lang];
+}
+
 /** Hook: returns t() bound to the user's stored language preference. */
 export function useTranslation() {
   const { state } = useFinance();
   const lang = (state.profile.language ?? "es") as Lang;
   const t = (key: TranslationKey) => translate(key, lang);
-  return { t, lang };
+  const tVars = (key: TranslationKey, vars: Record<string, string | number>) =>
+    translateWith(key, lang, vars);
+  return { t, tVars, lang, locale: localeFor(lang) };
 }

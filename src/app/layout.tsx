@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
+import { FinanceProvider } from "@/lib/use-finance";
 
 export const metadata: Metadata = {
   title: "Nuvio — Spend smart. Stay safe.",
@@ -20,11 +21,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="font-body min-h-screen pb-24 md:pb-8">
-        <NavBar />
-        <main className="max-w-5xl mx-auto px-4 md:px-8 pt-6">{children}</main>
-        <footer className="max-w-5xl mx-auto px-4 md:px-8 py-8 text-center text-xs text-ink/35">
-          Nuvio — Spend smart. Stay safe. · Creado por Gonzalo Suarez
-        </footer>
+        <FinanceProvider>
+          <NavBar />
+          <main className="max-w-5xl mx-auto px-4 md:px-8 pt-6">{children}</main>
+          <footer className="max-w-5xl mx-auto px-4 md:px-8 py-8 text-center text-xs text-ink/35">
+            Nuvio — Spend smart. Stay safe. · Creado por Gonzalo Suarez
+          </footer>
+        </FinanceProvider>
       </body>
     </html>
   );

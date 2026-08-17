@@ -3,26 +3,25 @@
 import { useFinance } from "@/lib/use-finance";
 import { formatMoney } from "@/lib/calc-engine";
 import { SafeToSpendHero, MiniCard, BreakdownList } from "@/components/DashboardCards";
+import { useTranslation } from "@/lib/i18n";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const { state, calc, health, hydrated } = useFinance();
+  const { t, tVars, locale } = useTranslation();
 
   if (!hydrated) return null;
 
   if (!state.onboardingComplete) {
     return (
       <div className="card text-center py-16">
-        <p className="font-display text-2xl mb-2">Empecemos por conocer tu situación</p>
-        <p className="text-ink/60 mb-6 max-w-md mx-auto">
-          Necesitamos algunos datos — tu saldo, tu salario y tus gastos fijos — para calcular
-          cuánto puedes gastar hoy con seguridad.
-        </p>
+        <p className="font-display text-2xl mb-2">{t("onboarding_title")}</p>
+        <p className="text-ink/60 mb-6 max-w-md mx-auto">{t("onboarding_body")}</p>
         <Link
           href="/onboarding"
           className="inline-block bg-ink text-paper px-6 py-3 rounded-full font-medium hover:bg-moss transition-colors"
         >
-          Configurar mi cuenta
+          {t("onboarding_cta")}
         </Link>
       </div>
     );
@@ -35,26 +34,23 @@ export default function DashboardPage() {
       <SafeToSpendHero calc={calc} currency={currency} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MiniCard label="Saldo actual" value={formatMoney(calc.currentBalanceMinor, currency)} />
+        <MiniCard label={t("current_balance")} value={formatMoney(calc.currentBalanceMinor, currency, locale)} />
         <MiniCard
-          label="Próximo ingreso"
-          value={formatMoney(calc.confirmedIncomeBeforeTargetMinor, currency)}
-          sub={`en ${calc.daysUntilTarget} días`}
+          label={t("next_income")}
+          value={formatMoney(calc.confirmedIncomeBeforeTargetMinor, currency, locale)}
+          sub={tVars("in_n_days", { n: calc.daysUntilTarget })}
         />
         <MiniCard
-          label="Gastos próximos"
-          value={formatMoney(calc.committedExpensesBeforeTargetMinor, currency)}
+          label={t("upcoming_expenses")}
+          value={formatMoney(calc.committedExpensesBeforeTargetMinor, currency, locale)}
+        />
+        <MiniCard label={t("reserve_goal")} value={formatMoney(calc.desiredReserveMinor, currency, locale)} />
+        <MiniCard
+          label={t("spent_this_cycle")}
+          value={formatMoney(calc.spentSoFarThisCycleMinor, currency, locale)}
         />
         <MiniCard
-          label="Meta de reserva"
-          value={formatMoney(calc.desiredReserveMinor, currency)}
-        />
-        <MiniCard
-          label="Gastado este ciclo"
-          value={formatMoney(calc.spentSoFarThisCycleMinor, currency)}
-        />
-        <MiniCard
-          label="Salud financiera"
+          label={t("financial_health")}
           value={`${health.score}/100`}
           sub={health.factors[0]?.note}
         />
@@ -67,7 +63,7 @@ export default function DashboardPage() {
           href="/expenses"
           className="bg-moss text-paper px-5 py-2.5 rounded-full text-sm font-medium hover:bg-ink transition-colors"
         >
-          + Añadir gasto
+          {t("add_expense")}
         </Link>
       </div>
     </div>

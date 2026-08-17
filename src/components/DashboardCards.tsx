@@ -3,31 +3,42 @@
 import clsx from "clsx";
 import { formatMoney } from "@/lib/calc-engine";
 import type { CalcResult } from "@/lib/types";
+import { useTranslation, type TranslationKey } from "@/lib/i18n";
 
-const STATUS_COPY: Record<CalcResult["status"], { label: string; color: string; dot: string }> = {
-  excellent: { label: "Excelente", color: "text-good", dot: "bg-good" },
-  "on-track": { label: "En buen camino", color: "text-moss", dot: "bg-moss" },
-  "slightly-above": { label: "Ligeramente por encima", color: "text-gold", dot: "bg-gold" },
-  "at-risk": { label: "En riesgo", color: "text-clay", dot: "bg-clay" },
-  critical: { label: "Crítico", color: "text-alert", dot: "bg-alert" },
+const STATUS_KEY: Record<CalcResult["status"], TranslationKey> = {
+  excellent: "status_excellent",
+  "on-track": "status_on_track",
+  "slightly-above": "status_slightly_above",
+  "at-risk": "status_at_risk",
+  critical: "status_critical",
+};
+
+const STATUS_COLOR: Record<CalcResult["status"], { color: string; dot: string }> = {
+  excellent: { color: "text-good", dot: "bg-good" },
+  "on-track": { color: "text-moss", dot: "bg-moss" },
+  "slightly-above": { color: "text-gold", dot: "bg-gold" },
+  "at-risk": { color: "text-clay", dot: "bg-clay" },
+  critical: { color: "text-alert", dot: "bg-alert" },
 };
 
 export function SafeToSpendHero({ calc, currency }: { calc: CalcResult; currency: string }) {
-  const status = STATUS_COPY[calc.status];
+  const { t, locale } = useTranslation();
+  const status = STATUS_COLOR[calc.status];
   return (
     <div className="card bg-ink text-paper relative overflow-hidden">
       <div className="relative z-10">
-        <p className="text-paper/60 text-sm mb-1">Puedes gastar hoy con seguridad</p>
+        <p className="text-paper/60 text-sm mb-1">{t("safe_to_spend_today")}</p>
         <p className="font-display text-5xl md:text-6xl tracking-tight">
-          {formatMoney(Math.max(0, calc.recommendedDailySpendingMinor), currency)}
+          {formatMoney(Math.max(0, calc.recommendedDailySpendingMinor), currency, locale)}
         </p>
         <div className="flex items-center gap-2 mt-4">
           <span className={clsx("status-dot", status.dot)} />
-          <span className="text-sm text-paper/80">{status.label}</span>
+          <span className="text-sm text-paper/80">{t(STATUS_KEY[calc.status])}</span>
           <span className="text-paper/40 text-sm">·</span>
           <span className="text-sm text-paper/60">
-            {formatMoney(Math.max(0, calc.remainingSafeToSpendMinor), currency)} disponibles hasta el{" "}
-            {new Date(calc.targetDate).toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
+            {formatMoney(Math.max(0, calc.remainingSafeToSpendMinor), currency, locale)}{" "}
+            {t("available_until")}{" "}
+            {new Date(calc.targetDate).toLocaleDateString(locale, { day: "numeric", month: "short" })}
           </span>
         </div>
       </div>
@@ -56,30 +67,33 @@ export function MiniCard({
 }
 
 export function BreakdownList({ calc, currency }: { calc: CalcResult; currency: string }) {
-  const kindLabel: Record<string, string> = {
-    have: "Dinero que tienes",
-    coming: "Dinero que llega",
-    "must-spend": "Dinero comprometido",
-    "want-to-save": "Dinero que quieres ahorrar",
+  const { t, locale } = useTranslation();
+  const kindLabel: Record<string, TranslationKey> = {
+    have: "money_you_have",
+    coming: "money_coming",
+    "must-spend": "money_committed",
+    "want-to-save": "money_to_save",
   };
   const groups = ["have", "coming", "must-spend", "want-to-save"] as const;
 
   return (
     <div className="card">
-      <p className="font-display text-lg mb-3">Por qué este número</p>
+      <p className="font-display text-lg mb-3">{t("why_this_number")}</p>
       <div className="space-y-4">
         {groups.map((kind) => {
           const items = calc.breakdown.filter((i) => i.kind === kind);
           if (items.length === 0) return null;
           return (
             <div key={kind}>
-              <p className="text-xs uppercase tracking-wide text-ink/40 mb-1.5">{kindLabel[kind]}</p>
+              <p className="text-xs uppercase tracking-wide text-ink/40 mb-1.5">
+                {t(kindLabel[kind])}
+              </p>
               <ul className="space-y-1">
                 {items.map((item, idx) => (
                   <li key={idx} className="flex justify-between text-sm">
                     <span className="text-ink/70">{item.label}</span>
                     <span className="font-mono text-ink/90">
-                      {formatMoney(item.amountMinor, currency)}
+                      {formatMoney(item.amountMinor, currency, locale)}
                     </span>
                   </li>
                 ))}
