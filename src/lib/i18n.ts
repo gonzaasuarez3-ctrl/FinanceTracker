@@ -137,6 +137,23 @@ const dict = {
   name_placeholder: { es: "Nombre", en: "Name", de: "Name" },
   amount_placeholder: { es: "Monto", en: "Amount", de: "Betrag" },
   day_placeholder: { es: "Día", en: "Day", de: "Tag" },
+
+  // Export / import
+  export_import_title: { es: "Pasar tus datos a otro dispositivo", en: "Move your data to another device", de: "Deine Daten auf ein anderes Gerät übertragen" },
+  export_import_note: {
+    es: "Tus datos viven solo en este navegador. Para verlos en tu celular u otra computadora, exporta un archivo aquí y luego impórtalo allá.",
+    en: "Your data lives only in this browser. To see it on your phone or another computer, export a file here and then import it there.",
+    de: "Deine Daten befinden sich nur in diesem Browser. Um sie auf deinem Handy oder einem anderen Computer zu sehen, exportiere hier eine Datei und importiere sie dort.",
+  },
+  export_button: { es: "Exportar mis datos", en: "Export my data", de: "Meine Daten exportieren" },
+  import_button: { es: "Importar datos", en: "Import data", de: "Daten importieren" },
+  import_warning: {
+    es: "Importar reemplazará todos los datos actuales de este dispositivo.",
+    en: "Importing will replace all current data on this device.",
+    de: "Der Import ersetzt alle aktuellen Daten auf diesem Gerät.",
+  },
+  import_success: { es: "Datos importados correctamente.", en: "Data imported successfully.", de: "Daten erfolgreich importiert." },
+  import_error: { es: "Ese archivo no parece ser un backup válido de Nuvio.", en: "That file doesn't look like a valid Nuvio backup.", de: "Diese Datei scheint kein gültiges Nuvio-Backup zu sein." },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type TranslationKey = keyof typeof dict;
